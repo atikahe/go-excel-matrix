@@ -6,28 +6,27 @@ type AxisMap map[string]string
 
 const (
 	DEFAULT_SHEET = "Sheet1"
+	ROW_PREFIX    = "row-"
+	COL_PREFIX    = "col-"
 )
 
 type excelFile struct {
-	file      *excelize.File
-	rowPrefix string
-	colPrefix string
-	axisMap   AxisMap
+	file    *excelize.File
+	axisMap AxisMap
 }
 
 type ExcelFile interface {
 	SetColumns(labels []string) *excelFile
 	SetRows(labels []string) *excelFile
-	SetValue(value string, row string, col string) *excelFile
+	SetValue(row string, col string, value string) *excelFile
 
 	Save(name ...string) error
 }
 
 func NewFile(rowPrefix string, colPrefix string) ExcelFile {
 	return &excelFile{
-		file:      excelize.NewFile(),
-		rowPrefix: rowPrefix,
-		colPrefix: colPrefix,
+		file:    excelize.NewFile(),
+		axisMap: AxisMap{},
 	}
 }
 
@@ -35,7 +34,7 @@ func NewFile(rowPrefix string, colPrefix string) ExcelFile {
 // It then creates the mapping of where each value is located in the document.
 //
 // Example:
-// 		SetColumns(["label1", "label2"], "col-") will produce {"col-label1": "A1", "col-label2": "B1"}, nil
+// 		SetColumns(["label1", "label2"], "col-") will produce {"col-label1": "B1", "col-label2": "C1"}, nil
 func (ef *excelFile) SetColumns(labels []string) *excelFile {
 	for column, label := range labels {
 		axis, _ := excelize.CoordinatesToCellName(column+2, 1)
@@ -44,7 +43,7 @@ func (ef *excelFile) SetColumns(labels []string) *excelFile {
 			return ef
 		}
 
-		ef.axisMap[ef.colPrefix+label] = axis
+		ef.axisMap[COL_PREFIX+label] = axis
 	}
 	return ef
 }
@@ -62,7 +61,7 @@ func (ef *excelFile) SetRows(labels []string) *excelFile {
 			return ef
 		}
 
-		ef.axisMap[ef.rowPrefix+label] = axis
+		ef.axisMap[ROW_PREFIX+label] = axis
 	}
 	return ef
 }
@@ -70,11 +69,11 @@ func (ef *excelFile) SetRows(labels []string) *excelFile {
 // SetValue will fill the value into the given row and column label.
 //
 // Example:
-//		SetValue("Failed", "Order-1", "Status") given that "Order-1" is in A2 and "Status" in B1
+//		SetValue("Order-1", "Status", "Failed") given that "Order1" is in A2 and "Status" in B1
 //		will write "Failed" into the cell of B2
-func (ef *excelFile) SetValue(value string, row string, col string) *excelFile {
-	x, _, _ := excelize.CellNameToCoordinates(ef.axisMap[ef.rowPrefix+row])
-	_, y, _ := excelize.CellNameToCoordinates(ef.axisMap[ef.colPrefix+col])
+func (ef *excelFile) SetValue(row string, col string, value string) *excelFile {
+	x, _, _ := excelize.CellNameToCoordinates(ef.axisMap[ROW_PREFIX+row])
+	_, y, _ := excelize.CellNameToCoordinates(ef.axisMap[COL_PREFIX+col])
 	axis, _ := excelize.CoordinatesToCellName(x, y)
 
 	ef.file.SetCellValue(DEFAULT_SHEET, axis, value)
