@@ -2,7 +2,7 @@
 
 Project goexcelmatrix generates matrix into excel and enables writing value into a cell given the row and column name.
 
-Early development stage, hence somewhat obscure code.
+Early development stage, hence being somewhat obscure.
 
 ## Installation
 ```sh
@@ -11,15 +11,17 @@ go get github.com/atikahe/go-excel-matrix
 
 ## Usage
 ```go
-import github.com/atikahe/go-excel-matrix
+package main
+
+import "github.com/atikahe/go-excel-matrix"
 
 package main() {
     // Create new file
-    excel := goexcelmatrix.NewFile("row-", "col-")
+    excel := goexcelmatrix.NewFile()
 
     // Initialize rows and columns
     rows := []string{"Student-1", "Student-2", "Student-3"}
-    cols := []string{"Math", "Science", "History"}
+    cols := []string{"Math", "Social Science", "History"}
 
     excel.SetRows(rows).SetColumns(cols)
 
@@ -30,7 +32,7 @@ package main() {
         {"Student-3", "History", "B"},
     }
 
-    for _, score := range score {
+    for _, score := range scores {
         excel.SetValue(score)
     }
 
@@ -38,6 +40,10 @@ package main() {
     excel.Save("AP_Score_2022")
 }
 ```
+
+## To Do
+- Param validation & error handling
+- Automate test
 
 ## Testing
 Testing will go here.
