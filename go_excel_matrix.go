@@ -23,7 +23,7 @@ type ExcelFile interface {
 	Save(name ...string) error
 }
 
-func NewFile(rowPrefix string, colPrefix string) ExcelFile {
+func NewFile() ExcelFile {
 	return &excelFile{
 		file:    excelize.NewFile(),
 		axisMap: AxisMap{},
